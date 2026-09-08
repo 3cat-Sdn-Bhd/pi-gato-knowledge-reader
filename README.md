@@ -1,6 +1,6 @@
 # pi-gato-knowledge-reader
 
-Pi extension for [Gato](https://github.com/8monkey-ai/gato). It reads a
+Pi extension for Pi. It reads a
 [gato-knowledge](https://github.com/turisanapo/gato-knowledge) style folder:
 
 - `knowledge/Skill.md` is appended to the system prompt on every turn, like `AGENTS.md`.
