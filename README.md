@@ -1,6 +1,6 @@
 # pi-gato-knowledge-reader
 
-Pi extension. It applies the [gato-knowledge](https://github.com/turisanapo/gato-knowledge)
+Pi extension. It applies the [gato-knowledge](https://github.com/3cat-Sdn-Bhd/gato-knowledge)
 country filter over pi's native `AGENTS.md` and `.agents/skills/` discovery.
 
 Pi loads `AGENTS.md` into the system prompt and lists every `.agents/skills/<name>/SKILL.md`
