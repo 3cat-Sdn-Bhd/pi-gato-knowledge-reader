@@ -1,12 +1,12 @@
 {
-	"name": "@turisanapo/pi-gato-knowledge-reader",
+	"name": "@3cat-sdn-bhd/pi-gato-knowledge-reader",
 	"version": "0.1.0",
-	"description": "Pi extension that loads knowledge/Skill.md as agent guidelines and exposes a read_skill tool that reads knowledge/<topic>.md.",
+	"description": "Pi extension that filters AGENTS.md and .agents/skills content by country (MY/PH) before it reaches the model.",
 	"license": "MIT",
 	"type": "module",
 	"repository": {
 		"type": "git",
-		"url": "git+https://github.com/turisanapo/pi-gato-knowledge-reader.git"
+		"url": "git+https://github.com/3cat-Sdn-Bhd/pi-gato-knowledge-reader.git"
 	},
 	"files": ["src", "README.md"],
 	"keywords": ["pi-package", "pi", "gato", "knowledge", "skills"],
@@ -17,13 +17,11 @@
 		"test": "node --test --experimental-strip-types test/*.test.ts"
 	},
 	"peerDependencies": {
-		"@earendil-works/pi-coding-agent": "*",
-		"typebox": "*"
+		"@earendil-works/pi-coding-agent": "*"
 	},
 	"devDependencies": {
 		"@earendil-works/pi-coding-agent": "*",
 		"@types/node": "^22",
-		"typebox": "*",
 		"typescript": "^5"
 	}
 }
