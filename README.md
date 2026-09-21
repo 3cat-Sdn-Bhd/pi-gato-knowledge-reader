@@ -26,7 +26,7 @@ saved in the session and shown in the footer as `country: MY`.
 In the Gato project `.pi/settings.json`:
 
 ```json
-{ "packages": ["git:github.com/turisanapo/pi-gato-knowledge-reader"] }
+{ "packages": ["git:github.com/3cat-Sdn-Bhd/pi-gato-knowledge-reader"] }
 ```
 
 Start pi from the folder that contains `AGENTS.md` and `.agents/skills/`.
