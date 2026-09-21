@@ -1,5 +1,5 @@
 {
-	"name": "@3cat-Sdn-Bhd/pi-gato-knowledge-reader",
+	"name": "@3cat-sdn-bhd/pi-gato-knowledge-reader",
 	"version": "0.1.0",
 	"description": "Pi extension that filters AGENTS.md and .agents/skills content by country (MY/PH) before it reaches the model.",
 	"license": "MIT",
