@@ -1,17 +1,25 @@
 # pi-gato-knowledge-reader
 
-Pi extension. It reads a
-[gato-knowledge](https://github.com/turisanapo/gato-knowledge) style folder:
+Pi extension. It applies the [gato-knowledge](https://github.com/turisanapo/gato-knowledge)
+country filter over pi's native `AGENTS.md` and `.agents/skills/` discovery.
 
-- `knowledge/Skill.md` is appended to the system prompt on every turn, like `AGENTS.md`.
-- `read_skill` tool: `read_skill({ skill: "stock-sharing-queries" })` returns `knowledge/stock-sharing-queries.md`.
-  Unknown names return the list of available topics.
-- Country filter: content is filtered for the selected country (`MY` default, or `PH`) before it reaches the model.
-  - inline: `Price my[RM 100]ph[PHP 1000]`
-  - block: a `:::ph` line, content, then a `:::` line
-  - Nested or overlapping directives are an error.
-- `/country [MY|PH]` selects the country. Without an argument it opens a picker. The choice is
-  saved in the session and shown in the footer as `country: MY`.
+Pi loads `AGENTS.md` into the system prompt and lists every `.agents/skills/<name>/SKILL.md`
+in an `<available_skills>` catalog. The model reads skill files with the built-in `read` tool.
+This extension filters that content for the selected country (`MY` default, or `PH`):
+
+- The system prompt, so `AGENTS.md` and every skill description are filtered. A skill whose
+  description is written wholly as `my[...]` is absent from the catalog under `PH`.
+- Every `read` of `AGENTS.md` or a file under `.agents/skills/`. Other files are untouched.
+
+Directive syntax:
+
+- inline: `Price my[RM 100]ph[PHP 1000]`
+- block: a `:::ph` line, content, then a `:::` line
+- Nested or overlapping directives are an error. The extension shows a red notification and the
+  model receives only the error text, never the unfiltered content.
+
+`/country [MY|PH]` selects the country. Without an argument it opens a picker. The choice is
+saved in the session and shown in the footer as `country: MY`.
 
 ## Install
 
@@ -21,13 +29,7 @@ In the Gato project `.pi/settings.json`:
 { "packages": ["git:github.com/turisanapo/pi-gato-knowledge-reader"] }
 ```
 
-Start pi from the folder that contains `./knowledge`, for example `gato-prod/v1`.
-
-## Configuration
-
-| Variable              | Default     | Effect                                  |
-| --------------------- | ----------- | --------------------------------------- |
-| `GATO_KNOWLEDGE_DIR`  | `knowledge` | Knowledge folder, relative to the cwd   |
+Start pi from the folder that contains `AGENTS.md` and `.agents/skills/`.
 
 ## Test
 

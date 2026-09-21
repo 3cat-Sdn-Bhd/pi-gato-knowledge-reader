@@ -1,14 +1,13 @@
-import type { ExtensionAPI } from "@earendil-works/pi-coding-agent";
-import { Type } from "typebox";
-import { COUNTRIES, type Country, DEFAULT_COUNTRY, filterCountryMarkdown, isCountry } from "./country.ts";
-import { knowledgeDir, listTopics, readIndex, readTopic } from "./knowledge.ts";
+import type { ExtensionAPI, ExtensionContext } from "@earendil-works/pi-coding-agent";
+import { COUNTRIES, type Country, CountryMarkdownError, DEFAULT_COUNTRY, filterCountryMarkdown, isCountry } from "./country.ts";
+import { filterSystemPrompt, isKnowledgePath } from "./prompt.ts";
 
 const COUNTRY_ENTRY = "gato-country";
 
 export default function gatoKnowledgeReader(pi: ExtensionAPI) {
 	let country: Country = DEFAULT_COUNTRY;
 
-	const showCountry = (ctx: { hasUI: boolean; ui: { setStatus(key: string, text: string): void } }) => {
+	const showCountry = (ctx: ExtensionContext) => {
 		if (ctx.hasUI) ctx.ui.setStatus(COUNTRY_ENTRY, `country: ${country}`);
 	};
 
@@ -38,30 +37,31 @@ export default function gatoKnowledgeReader(pi: ExtensionAPI) {
 		},
 	});
 
+	// The operator validates the knowledge base in this session; a bad directive must be impossible to miss.
+	const reportError = (where: string, error: unknown, ctx: ExtensionContext) => {
+		if (!(error instanceof CountryMarkdownError)) throw error;
+		const message = `KNOWLEDGE BASE ERROR in ${where}: ${error.message}. Report this to the user and do nothing else.`;
+		if (ctx.hasUI) ctx.ui.notify(message, "error");
+		return message;
+	};
+
 	pi.on("before_agent_start", (event, ctx) => {
-		const index = readIndex(knowledgeDir(ctx.cwd));
-		if (!index) return;
-		return { systemPrompt: `${event.systemPrompt}\n\n${filterCountryMarkdown(index, country)}` };
+		try {
+			return { systemPrompt: filterSystemPrompt(event.systemPrompt, country) };
+		} catch (error) {
+			return { systemPrompt: reportError("system prompt (AGENTS.md or a skill description)", error, ctx) };
+		}
 	});
 
-	pi.registerTool({
-		name: "read_skill",
-		label: "Read Skill",
-		description:
-			"Read a skill topic from the knowledge base. Pass the topic name as listed in the Topic list (for example `stock-sharing-queries`).",
-		promptSnippet: "Read a knowledge-base skill topic by name",
-		promptGuidelines: ["Use read_skill with the topic name whenever the guidelines tell you to read a skill."],
-		parameters: Type.Object({
-			skill: Type.String({ description: "Topic name, without the .md extension" }),
-		}),
-		async execute(_id, params, _signal, _onUpdate, ctx) {
-			const dir = knowledgeDir(ctx.cwd);
-			const result = readTopic(dir, params.skill);
-			if (!result.ok) return { content: [{ type: "text", text: result.error }], isError: true };
+	pi.on("tool_result", (event, ctx) => {
+		const path = String((event.input as { path?: unknown }).path ?? "");
+		if (event.toolName !== "read" || !isKnowledgePath(path, ctx.cwd)) return;
+		try {
 			return {
-				content: [{ type: "text", text: filterCountryMarkdown(result.text, country) }],
-				details: { skill: params.skill, country, topics: listTopics(dir) },
+				content: event.content.map((p) => (p.type === "text" ? { ...p, text: filterCountryMarkdown(p.text, country) } : p)),
 			};
-		},
+		} catch (error) {
+			return { content: [{ type: "text", text: reportError(path, error, ctx) }], isError: true };
+		}
 	});
 }
